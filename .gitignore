@@ -1,0 +1,5 @@
+# .gitignore
+__pycache__
+*.pyc
+.env
+tasks.json  # Файл для хранения данных
