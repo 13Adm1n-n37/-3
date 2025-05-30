@@ -1,5 +1,5 @@
 import json
-from model import TaskModel
+from src.model import TaskModel 
 
 def test_add_task():
     model = TaskModel(filename="test_tasks.json")
