@@ -12,3 +12,10 @@ class TaskController:
         for task in self.model.tasks:
             text = f"{task['title']} | {task['priority']} | {task['category']} | {task['due_date']}"
             self.view.task_list.addItem(text)
+    
+    def update_task_list(self):
+        self.view.task_list.clear()
+        for task in self.model.tasks:
+            status = "✅" if task["completed"] else "❌"
+            text = f"{status} {task['title']} | {task['priority']} | {task['category']} | {task['due_date']}"
+            self.view.task_list.addItem(text)
