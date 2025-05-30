@@ -19,3 +19,7 @@ class TaskModel:
     def add_task(self, task):
         self.tasks.append(task)
         self.save_tasks()
+    
+    def delete_task(self, index):
+        del self.tasks[index]
+        self.save_tasks()
