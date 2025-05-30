@@ -1,5 +1,5 @@
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLineEdit, QPushButton, QListWidget, QLabel, QComboBox, QDateEdit
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLineEdit, QPushButton, QListWidget, QLabel, QComboBox, QDateEdit, QCheckBox  # QCheckBox добавлен
+from PyQt5.QtCore import Qt, QDate  # QDate добавлен
 
 class TaskView(QWidget):
     def __init__(self, controller):
@@ -39,6 +39,8 @@ class TaskView(QWidget):
         # Связал кнопки с методами
         self.edit_button.clicked.connect(self.edit_task)
         self.delete_button.clicked.connect(self.delete_task)
+        
+        self.completed_checkbox = QCheckBox("Выполнено", self)
 
         # Компоновка интерфейса
         layout = QVBoxLayout()
@@ -57,6 +59,8 @@ class TaskView(QWidget):
         # Добавил кнопки в компоновку
         layout.addWidget(self.edit_button)
         layout.addWidget(self.delete_button)
+        
+        layout.addWidget(self.completed_checkbox)
 
         self.setLayout(layout)
 
@@ -67,11 +71,12 @@ class TaskView(QWidget):
             "priority": self.priority_combo.currentText(),
             "category": self.category_combo.currentText(),
             "due_date": self.due_date.date().toString("yyyy-MM-dd"),
-            "completed": False
+            "completed": self.completed_checkbox.isChecked()
         }
         # Передача задачи в контроллер
         self.controller.add_task(task)
         self.title_input.clear()
+        self.completed_checkbox.setChecked(False)
     
     def edit_task(self):
         selected_index = self.task_list.currentRow()
