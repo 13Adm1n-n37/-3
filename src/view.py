@@ -72,3 +72,22 @@ class TaskView(QWidget):
         # Передача задачи в контроллер
         self.controller.add_task(task)
         self.title_input.clear()
+    
+    def edit_task(self):
+        selected_index = self.task_list.currentRow()
+        if selected_index >= 0:
+            task = self.model.tasks[selected_index]
+        # Заполние поля ввода данными выбранной задачи
+            self.title_input.setText(task["title"])
+            self.priority_combo.setCurrentText(task["priority"])
+            self.category_combo.setCurrentText(task["category"])
+            self.due_date.setDate(QDate.fromString(task["due_date"], "yyyy-MM-dd"))
+        # Удаление задачу из списка для последующего обновления
+            self.model.delete_task(selected_index)
+            self.update_task_list()
+
+    def delete_task(self):
+        selected_index = self.task_list.currentRow()
+        if selected_index >= 0:
+            self.model.delete_task(selected_index)
+            self.update_task_list()
