@@ -1,5 +1,5 @@
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLineEdit, QPushButton, QListWidget, QLabel, QComboBox, QDateEdit, QCheckBox  # QCheckBox добавлен
-from PyQt5.QtCore import Qt, QDate  # QDate добавлен
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLineEdit, QPushButton, QListWidget, QLabel, QComboBox, QDateEdit, QCheckBox  
+from PyQt5.QtCore import Qt, QDate  
 
 class TaskView(QWidget):
     def __init__(self, controller):
