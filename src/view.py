@@ -41,6 +41,12 @@ class TaskView(QWidget):
         self.delete_button.clicked.connect(self.delete_task)
         
         self.completed_checkbox = QCheckBox("Выполнено", self)
+        
+        # Выпадающий список
+        self.filter_combo = QComboBox()
+        self.filter_combo.addItems(["Все", "Выполненные", "Невыполненные"])
+        self.filter_combo.currentIndexChanged.connect(self.filter_tasks)
+
 
         # Компоновка интерфейса
         layout = QVBoxLayout()
@@ -61,6 +67,9 @@ class TaskView(QWidget):
         layout.addWidget(self.delete_button)
         
         layout.addWidget(self.completed_checkbox)
+        
+        layout.addWidget(QLabel("Фильтр:"))
+        layout.addWidget(self.filter_combo)
 
         self.setLayout(layout)
 
@@ -96,3 +105,19 @@ class TaskView(QWidget):
         if selected_index >= 0:
             self.model.delete_task(selected_index)
             self.update_task_list()
+      
+    # Метод фильтрации      
+    def filter_tasks(self):
+        filter_type = self.filter_combo.currentText()
+        filtered_tasks = []
+        if filter_type == "Все":
+            filtered_tasks = self.model.tasks
+        elif filter_type == "Выполненные":
+            filtered_tasks = [t for t in self.model.tasks if t["completed"]]
+        elif filter_type == "Невыполненные":
+            filtered_tasks = [t for t in self.model.tasks if not t["completed"]]
+        self.view.task_list.clear()
+        for task in filtered_tasks:
+            status = "✅" if task["completed"] else "❌"
+            text = f"{status} {task['title']} | {task['priority']} | {task['category']} | {task['due_date']}"
+            self.view.task_list.addItem(text)
