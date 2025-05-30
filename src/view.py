@@ -31,6 +31,15 @@ class TaskView(QWidget):
         # Список задач
         self.task_list = QListWidget(self)
 
+        # В методе init_ui():
+        # Добавил кнопки редактирования и удаления
+        self.edit_button = QPushButton("Редактировать", self)
+        self.delete_button = QPushButton("Удалить", self)
+
+        # Связал кнопки с методами
+        self.edit_button.clicked.connect(self.edit_task)
+        self.delete_button.clicked.connect(self.delete_task)
+
         # Компоновка интерфейса
         layout = QVBoxLayout()
         layout.addWidget(QLabel("Задача:"))
@@ -44,6 +53,10 @@ class TaskView(QWidget):
         layout.addWidget(self.add_button)
         layout.addWidget(QLabel("Список задач:"))
         layout.addWidget(self.task_list)
+
+        # Добавил кнопки в компоновку
+        layout.addWidget(self.edit_button)
+        layout.addWidget(self.delete_button)
 
         self.setLayout(layout)
 
