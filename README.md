@@ -11,6 +11,6 @@
 
 ## Установка  
 ```bash
-git clone https://github.com/<ваше_имя>/task-manager.git 
+git clone https://github.com/13Adm1n-n37/-3.git
 pip install pyqt5
 python src/main.py
