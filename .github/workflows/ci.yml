@@ -1,0 +1,44 @@
+name: "CI/CD for Task Manager"  # Название workflow [[1]][[2]]
+
+on:  # Триггеры для запуска workflow
+  push:  # При push в ветку main
+    branches:
+      - main
+  pull_request:  # При создании pull request в main
+    branches:
+      - main
+
+jobs:  # Определение заданий
+  build-and-test:  # Имя задания
+    runs-on: ubuntu-latest  # Операционная система для выполнения 
+    steps:  # Последовательность шагов
+      - name: Checkout code  # Клонирование репозитория
+        uses: actions/checkout@v2  # Использует стандартный action для клонирования 
+
+      - name: Set up Python  # Настройка окружения Python
+        uses: actions/setup-python@v2  # Установка Python через action 
+        with:
+          python-version: "3.10"  # Версия Python согласно требованиям 
+
+      - name: Install dependencies  # Установка зависимостей
+        run: |  # Выполняет команды в терминале
+          pip install -r requirements.txt  # Установка основных зависимостей
+          pip install pytest coverage PyQt5  # Добавочные зависимости для тестов 
+
+      - name: Run tests with coverage  # Запуск тестов
+        run: |  # Команды для выполнения тестов
+          coverage run -m unittest discover -s tests  # Запуск тестов с покрытием
+          coverage html  # Генерация HTML-отчета о покрытии 
+
+      - name: Upload coverage report  # Сохранение отчета как артефакта
+        uses: actions/upload-artifact@v2  # Action для загрузки результатов 
+        with:
+          name: coverage-report  # Имя артефакта
+          path: htmlcov/  # Путь к сгенерированному отчету
+
+      - name: Show test results  # Вывод содержимого отчета в логи
+        run: cat htmlcov/index.html  # Просмотр содержимого файла
+
+      - name: Check test success  # Проверка на провал тестов
+        if: failure()  # Условие выполнения: если предыдущие шаги провалились
+        run: echo "Tests failed. Check logs for details."  # Вывод ошибки
