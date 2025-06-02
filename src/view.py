@@ -12,41 +12,29 @@ class TaskView(QWidget):
         # Поля ввода
         self.title_input = QLineEdit(self)
         self.title_input.setPlaceholderText("Введите задачу...")
-
         # Выбор приоритета
         self.priority_combo = QComboBox(self)
         self.priority_combo.addItems(["Низкий", "Средний", "Высокий"])
-
         # Выбор категории
         self.category_combo = QComboBox(self)
         self.category_combo.addItems(["Работа", "Личное", "Обучение"])
-
         # Выбор даты
         self.due_date = QDateEdit(self)
-
         # Кнопка добавления
         self.add_button = QPushButton("Добавить задачу", self)
         self.add_button.clicked.connect(self.add_task)
-
         # Список задач
         self.task_list = QListWidget(self)
-
-        # В методе init_ui():
-        # Добавил кнопки редактирования и удаления
+        # Кнопки редактирования и удаления
         self.edit_button = QPushButton("Редактировать", self)
         self.delete_button = QPushButton("Удалить", self)
-
-        # Связал кнопки с методами
         self.edit_button.clicked.connect(self.edit_task)
         self.delete_button.clicked.connect(self.delete_task)
-        
         self.completed_checkbox = QCheckBox("Выполнено", self)
-        
-        # Выпадающий список
+        # Выпадающий список фильтра
         self.filter_combo = QComboBox()
         self.filter_combo.addItems(["Все", "Выполненные", "Невыполненные"])
         self.filter_combo.currentIndexChanged.connect(self.filter_tasks)
-
 
         # Компоновка интерфейса
         layout = QVBoxLayout()
@@ -61,20 +49,14 @@ class TaskView(QWidget):
         layout.addWidget(self.add_button)
         layout.addWidget(QLabel("Список задач:"))
         layout.addWidget(self.task_list)
-
-        # Добавил кнопки в компоновку
         layout.addWidget(self.edit_button)
         layout.addWidget(self.delete_button)
-        
         layout.addWidget(self.completed_checkbox)
-        
         layout.addWidget(QLabel("Фильтр:"))
         layout.addWidget(self.filter_combo)
-
         self.setLayout(layout)
 
     def add_task(self):
-        # Сбор данных из полей ввода
         task = {
             "title": self.title_input.text(),
             "priority": self.priority_combo.currentText(),
@@ -82,42 +64,39 @@ class TaskView(QWidget):
             "due_date": self.due_date.date().toString("yyyy-MM-dd"),
             "completed": self.completed_checkbox.isChecked()
         }
-        # Передача задачи в контроллер
         self.controller.add_task(task)
         self.title_input.clear()
         self.completed_checkbox.setChecked(False)
-    
+
     def edit_task(self):
         selected_index = self.task_list.currentRow()
         if selected_index >= 0:
-            task = self.model.tasks[selected_index]
-        # Заполние поля ввода данными выбранной задачи
+            task = self.controller.model.tasks[selected_index]
             self.title_input.setText(task["title"])
             self.priority_combo.setCurrentText(task["priority"])
             self.category_combo.setCurrentText(task["category"])
             self.due_date.setDate(QDate.fromString(task["due_date"], "yyyy-MM-dd"))
-        # Удаление задачу из списка для последующего обновления
-            self.model.delete_task(selected_index)
-            self.update_task_list()
+            self.completed_checkbox.setChecked(task["completed"])
+            # Удаляем задачу из модели и обновляем список
+            self.controller.delete_task(selected_index)
+            self.controller.update_task_list()
 
     def delete_task(self):
         selected_index = self.task_list.currentRow()
         if selected_index >= 0:
-            self.model.delete_task(selected_index)
-            self.update_task_list()
-      
-    # Метод фильтрации      
+            self.controller.delete_task(selected_index)
+
     def filter_tasks(self):
         filter_type = self.filter_combo.currentText()
         filtered_tasks = []
         if filter_type == "Все":
-            filtered_tasks = self.model.tasks
+            filtered_tasks = self.controller.model.tasks
         elif filter_type == "Выполненные":
-            filtered_tasks = [t for t in self.model.tasks if t["completed"]]
+            filtered_tasks = [t for t in self.controller.model.tasks if t["completed"]]
         elif filter_type == "Невыполненные":
-            filtered_tasks = [t for t in self.model.tasks if not t["completed"]]
-        self.view.task_list.clear()
+            filtered_tasks = [t for t in self.controller.model.tasks if not t["completed"]]
+        self.task_list.clear()  # Исправлено: self.task_list вместо self.view.task_list
         for task in filtered_tasks:
             status = "✅" if task["completed"] else "❌"
             text = f"{status} {task['title']} | {task['priority']} | {task['category']} | {task['due_date']}"
-            self.view.task_list.addItem(text)
+            self.task_list.addItem(text)
