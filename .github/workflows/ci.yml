@@ -27,7 +27,7 @@ jobs:  # Определение заданий
 
       - name: Run tests with coverage  # Запуск тестов
         run: |  # Команды для выполнения тестов
-          coverage run -m unittest discover -s tests  # Запуск тестов с покрытием
+          coverage run -m pytest tests  # Запуск тестов с покрытием
           coverage html  # Генерация HTML-отчета о покрытии 
 
       - name: Upload coverage report  # Сохранение отчета как артефакта
