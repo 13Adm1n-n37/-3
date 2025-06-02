@@ -6,17 +6,17 @@ on:  # Триггеры для запуска workflow
       - master
   pull_request:  # При создании pull request в master
     branches:
-      - master
+      - master # Триггер при создании PR в master
 
 jobs:  # Определение заданий
   build-and-test:  # Имя задания
     runs-on: ubuntu-latest  # Операционная система для выполнения 
     steps:  # Последовательность шагов
       - name: Checkout code  # Клонирование репозитория
-        uses: actions/checkout@v2  # Использует стандартный action для клонирования 
+        uses: actions/checkout@v3  # Использует стандартный action для клонирования 
 
       - name: Set up Python  # Настройка окружения Python
-        uses: actions/setup-python@v2  # Установка Python через action 
+        uses: actions/setup-python@v4  # Установка Python через action 
         with:
           python-version: "3.10"  # Версия Python согласно требованиям 
 
@@ -31,7 +31,7 @@ jobs:  # Определение заданий
           coverage html  # Генерация HTML-отчета о покрытии 
 
       - name: Upload coverage report  # Сохранение отчета как артефакта
-        uses: actions/upload-artifact@v2  # Action для загрузки результатов 
+        uses: actions/upload-artifact@v3  # Action для загрузки результатов 
         with:
           name: coverage-report  # Имя артефакта
           path: htmlcov/  # Путь к сгенерированному отчету
