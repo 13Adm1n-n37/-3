@@ -1,12 +1,12 @@
 name: "CI/CD for Task Manager"  # Название workflow [[1]][[2]]
 
 on:  # Триггеры для запуска workflow
-  push:  # При push в ветку main
+  push:  # При push в ветку master
     branches:
-      - main
-  pull_request:  # При создании pull request в main
+      - master
+  pull_request:  # При создании pull request в master
     branches:
-      - main
+      - master
 
 jobs:  # Определение заданий
   build-and-test:  # Имя задания
