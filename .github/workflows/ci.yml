@@ -18,7 +18,7 @@ jobs:  # Определение заданий
       - name: Set up Python  # Настройка окружения Python
         uses: actions/setup-python@v5  # Установка Python через action 
         with:
-          python-version: "3.10"  # Версия Python согласно требованиям 
+          python-version: "3.13.3"  # Версия Python согласно требованиям 
 
       - name: Install dependencies  # Установка зависимостей
         run: |  # Выполняет команды в терминале
