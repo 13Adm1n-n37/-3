@@ -26,8 +26,8 @@ jobs:
           sudo apt-get install -y \
             xvfb libgl1 libegl1 libxrender1 libxtst6 libxi6 \
             libnss3 libasound2 libsm6 python3-opengl \
-            libxcb1 libx11-xcb1 libglapi-mesa libegl-mesa0 \
-            libfontconfig1 libxkbcommon0
+            libxcb1 libx11-xcb1 libglvnd0 libegl-mesa0 \
+            libgl1-mesa-dri libglapi-mesa libgles2-mesa
 
       - name: Установка пакетов из requirements.txt
         run: |
