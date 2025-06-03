@@ -20,24 +20,25 @@ jobs:  # Определение заданий
         with:
           python-version: "3.13.3"  # Версия Python согласно требованиям 
 
-      - name: Install Xvfb for GUI emulation
+      - name: Установка системных зависимостей для PyQt5
         run: |
-          sudo apt-get update && sudo apt-get install -y xvfb libgl1-mesa-glx libegl1-mesa  # Установка эмулятора X11
-          sudo apt-get install -y python3-opengl  # Дополнительные зависимости для PyQt
-
+          sudo apt-get update && sudo apt-get install -y \
+            xvfb libgl1 libegl1 libxcb1 libx11-dev \
+            libxrender1 libxtst6 libxi6 libnss3 libasound2 \
+            python3-opengl  # Для работы с OpenGL
 
       - name: Install dependencies  # Установка зависимостей
         run: |  # Выполняет команды в терминале
           pip install -r requirements.txt  # Установка основных зависимостей
-          pip install pytest coverage PyQt5==5.15.17  # Добавочные зависимости для тестов 
+          pip install coverage PyQt5==5.15.17  # Добавочные зависимости для тестов 
 
       - name: Run tests with coverage  # Запуск тестов
         run: |  # Команды для выполнения тестов
-          export DISPLAY=:99  # Настройка эмулятора
-          Xvfb :99 -screen 0 1024x768x24 &  # Запуск Xvfb
-          sleep 3  # Даем время на запуск Xvfb
-          coverage run -m unittest discover -s tests  # Запуск тестов с покрытием
-          coverage html  # Генерация HTML-отчета о покрытии 
+          export DISPLAY=:99  # Настройка Xvfb
+          Xvfb :99 -screen 0 1024x768x24 &  # Запуск эмулятора
+          sleep 3  # Ждем стабилизации Xvfb
+          coverage run -m unittest discover -s tests  # Запуск через unittest
+          coverage html
           pkill Xvfb  # Остановка Xvfb после тестов
 
       - name: Upload coverage report  # Сохранение отчета как артефакта
@@ -51,4 +52,4 @@ jobs:  # Определение заданий
 
       - name: Check test success  # Проверка на провал тестов
         if: failure()  # Условие выполнения: если предыдущие шаги провалились
-        run: echo "Tests failed. Check logs for details."  # Вывод ошибки
+        run: echo "Тесты провалились. Проверьте логи."  # Вывод ошибки
