@@ -1,4 +1,5 @@
 import sys
+sys.path.append("src")
 
 from PyQt5.QtCore import QDate
 import unittest
