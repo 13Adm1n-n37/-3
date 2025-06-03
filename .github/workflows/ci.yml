@@ -1,65 +1,44 @@
-name: "CI/CD for Task Manager"
 
-on:
-  push:
+name: "CI/CD for Task Manager"  # Название workflow
+
+on:  # Триггеры для запуска workflow
+  push:  # При push в ветку master
     branches:
       - master
-  pull_request:
+  pull_request:  # При создании pull request в master
     branches:
-      - master
+      - master # Триггер при создании PR в master
 
-jobs:
-  build-and-test:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+jobs:  # Определение заданий
+  build-and-test:  # Имя задания
+    runs-on: ubuntu-latest  # Операционная система для выполнения 
+    steps:  # Последовательность шагов
+      - name: Checkout code  # Клонирование репозитория
+        uses: actions/checkout@v4  # Использует стандартный action для клонирования 
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Set up Python  # Настройка окружения Python
+        uses: actions/setup-python@v5  # Установка Python через action 
         with:
-          python-version: "3.11"  # Используйте проверенную версию Python
+          python-version: "3.13.3"  # Версия Python согласно требованиям 
 
-      - name: Включение репозиториев и установка зависимостей
-        run: |
-          sudo apt-get update -y
-          sudo apt-get install -y software-properties-common
-          sudo add-apt-repository universe  # Добавьте доступ к Universe-репозиторию
-          sudo apt-get update -y
-
-          sudo apt-get install -y \
-            xvfb libgl1 libegl1 libxrender1 libxtst6 libxi6 \
-            libnss3 libasound2 libsm6 python3-opengl \
-            libxcb-xinerama0 libxcb-randr0 libxcb-shape0 libxcb-xfixes0 \
-            libxkbcommon0 libglvnd0 libgles2-mesa
-
-      - name: Установка пакетов из requirements.txt
-        run: |
-          pip install -r requirements.txt
-
-      - name: Установка coverage и PyQt5
-        run: |
-          pip install coverage==7.8.2 PyQt5==5.15.17
-
-      - name: Запуск тестов с эмуляцией GUI
-        run: |
-          export DISPLAY=:99
-          Xvfb :99 -screen 0 1280x1024x24 -ac +extension GLX +render -noreset &  
-          sleep 10
-          coverage run -m unittest discover -s tests
-          coverage html
-          pkill Xvfb
-
-      - name: Проверка отчета
-        run: |
-          if [ ! -f htmlcov/index.html ]; then exit 1; fi
-
-      - name: Загрузка артефакта
-        uses: actions/upload-artifact@v4
+      - name: Install dependencies  # Установка зависимостей
+        run: |  # Выполняет команды в терминале
+          pip install -r requirements.txt  # Установка основных зависимостей
+          pip install pytest coverage PyQt5  # Добавочные зависимости для тестов 
+      - name: Run tests with coverage  # Запуск тестов
+        run: |  # Команды для выполнения тестов
+          coverage run -m pytest tests  # Запуск тестов с покрытием
+          coverage html  # Генерация HTML-отчета о покрытии 
+      - name: Upload coverage report  # Сохранение отчета как артефакта
+        uses: actions/upload-artifact@v4  # Action для загрузки результатов 
         with:
-          name: coverage-report
-          path: htmlcov/
+          name: coverage-report  # Имя артефакта
+          path: htmlcov/  # Путь к сгенерированному отчету
 
-      - name: Проверка успеха
-        if: failure()
-        run: echo "Тесты провалились. Проверьте логи."
+      - name: Show test results  # Вывод содержимого отчета в логи
+        run: cat htmlcov/index.html  # Просмотр содержимого файла
+
+      - name: Check test success  # Проверка на провал тестов
+        if: failure()  # Условие выполнения: если предыдущие шаги провалились
+        run: echo "Tests failed. Check logs for details."  # Вывод ошибки
+Update_05 ci.yml · 13Adm1n-n37/-3@86beb01
