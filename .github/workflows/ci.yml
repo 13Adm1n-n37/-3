@@ -20,28 +20,41 @@ jobs:
         with:
           python-version: "3.13.3"
 
-      - name: Установка системных зависимостей
+      - name: Обновление репозиториев и установка системных зависимостей
         run: |
-          sudo apt-get update && sudo apt-get install -y \
-            xvfb libgl1-mesa-glx libegl1-mesa libxrender1 libxtst6 libxi6 \
-            libnss3 libasound2 libsm6 python3-opengl
+          sudo apt-get update -y && sudo apt-get upgrade -y
+          sudo apt-get install -y \
+            xvfb libgl1 libegl1 libxrender1 libxtst6 libxi6 \
+            libnss3 libasound2 libsm6 python3-opengl \
+            libxcb1 libx11-xcb1 libglapi-mesa libegl-mesa0
 
-      - name: Установка пакетов
+      - name: Установка пакетов из requirements.txt
         run: |
           pip install -r requirements.txt
-          pip install coverage PyQt5==5.15.17  # Указываем конкретную версию
+
+      - name: Установка coverage и PyQt5
+        run: |
+          pip install coverage==7.8.2 PyQt5==5.15.17
 
       - name: Запуск тестов с эмуляцией GUI
         run: |
-          export DISPLAY=:99
+          export DISPLAY=:99  # Настройка Xvfb
           Xvfb :99 -screen 0 1280x1024x24 -ac +extension GLX +render -noreset &  
-          sleep 5
+          sleep 5  # Даем время на стабилизацию Xvfb
           coverage run -m unittest discover -s tests  # Запуск через unittest
           coverage html
           pkill Xvfb
+
+      - name: Проверка генерации отчета
+        run: |
+          if [ ! -f htmlcov/index.html ]; then exit 1; fi
 
       - name: Загрузка отчета
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report
           path: htmlcov/
+
+      - name: Проверка успеха
+        if: failure()
+        run: echo "Тесты провалились. Проверьте логи."
