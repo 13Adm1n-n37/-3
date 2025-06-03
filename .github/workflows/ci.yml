@@ -22,8 +22,8 @@ jobs:  # Определение заданий
 
       - name: Install Xvfb for GUI emulation
         run: |
-          sudo apt-get update && sudo apt-get install -y xvfb  # Установка эмулятора X11
-          sudo apt-get install -y libgl1-mesa-glx libegl1-mesa  # Дополнительные зависимости для PyQt
+          sudo apt-get update && sudo apt-get install -y xvfb libgl1-mesa-glx libegl1-mesa  # Установка эмулятора X11
+          sudo apt-get install -y python3-opengl  # Дополнительные зависимости для PyQt
 
 
       - name: Install dependencies  # Установка зависимостей
@@ -35,6 +35,7 @@ jobs:  # Определение заданий
         run: |  # Команды для выполнения тестов
           export DISPLAY=:99  # Настройка эмулятора
           Xvfb :99 -screen 0 1024x768x24 &  # Запуск Xvfb
+          sleep 3  # Даем время на запуск Xvfb
           coverage run -m unittest discover -s tests  # Запуск тестов с покрытием
           coverage html  # Генерация HTML-отчета о покрытии 
           pkill Xvfb  # Остановка Xvfb после тестов
