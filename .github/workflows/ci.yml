@@ -1,59 +1,56 @@
-name: "CI/CD for Task Manager"  # Название workflow 
+name: "CI/CD for Task Manager"
 
-on:  # Триггеры для запуска workflow
-  push:  # При push в ветку master
+on:
+  push:
     branches:
       - master
-  pull_request:  # При создании pull request в master
+  pull_request:
     branches:
-      - master # Триггер при создании PR в master
+      - master
 
-jobs:  # Определение заданий
-  build-and-test:  # Имя задания
-    runs-on: ubuntu-latest  # Операционная система для выполнения 
-    steps:  # Последовательность шагов
-      - name: Checkout code  # Клонирование репозитория
-        uses: actions/checkout@v4  # Использует стандартный action для клонирования 
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - name: Set up Python  # Настройка окружения Python
-        uses: actions/setup-python@v5  # Установка Python через action 
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          python-version: "3.13.3"  # Версия Python согласно требованиям 
+          python-version: "3.13.3"
 
       - name: Установка системных зависимостей для PyQt5
         run: |
           sudo apt-get update && sudo apt-get install -y \
-            xvfb libgl1 libegl1 libxcb1 libx11-dev libxrender1 libxtst6 libxi6 \
-            libnss3 libasound2 libsm6 python3-opengl  # Добавлен libsm6 и libxrender1
-          sudo apt-get install -y python3-xvfb  # Дополнительный пакет для эмуляции
+            xvfb libgl1-mesa-glx libegl1-mesa libxrender1 libxtst6 libxi6 \
+            libnss3 libasound2 libsm6 python3-opengl \
+            libxcb1 libx11-dev  # Полный набор зависимостей
 
       - name: Установка пакетов
         run: |
           pip install -r requirements.txt
-          pip install coverage PyQt5==5.15.17  # Указана конкретная совместимая версия
+          pip install coverage PyQt5==5.15.17  # Указана совместимая версия
 
-      - name: Run tests with coverage  # Запуск тестов
-        run: |  # Команды для выполнения тестов
+      - name: Запуск тестов с эмуляцией GUI
+        run: |
           export DISPLAY=:99  # Настройка Xvfb
-          Xvfb :99 -screen 0 1024x768x24 &  # Запуск эмулятора
-          sleep 3  # Ждем стабилизации Xvfb
+          Xvfb :99 -screen 0 1024x768x24 -ac +extension GLX +render -noreset &  # Расширенные настройки
+          sleep 5  # Даем время на стабилизацию Xvfb
           coverage run -m unittest discover -s tests  # Запуск через unittest
           coverage html
-          pkill Xvfb  # Остановка Xvfb после тестов
+          pkill Xvfb
 
-      - name: Проверка успешности тестов
+      - name: Проверка генерации отчета
         run: |
-          if [ ! -f htmlcov/index.html ]; then exit 1; fi  # Проверка генерации отчета
+          if [ ! -f htmlcov/index.html ]; then exit 1; fi  # Остановка workflow, если отчет не сгенерирован
 
-      - name: Upload coverage report  # Сохранение отчета как артефакта
-        uses: actions/upload-artifact@v4  # Action для загрузки результатов 
+      - name: Загрузка отчета
+        uses: actions/upload-artifact@v4
         with:
-          name: coverage-report  # Имя артефакта
-          path: htmlcov/  # Путь к сгенерированному отчету
+          name: coverage-report
+          path: htmlcov/
 
-      - name: Show test results  # Вывод содержимого отчета в логи
-        run: cat htmlcov/index.html  # Просмотр содержимого файла
-
-      - name: Check test success  # Проверка на провал тестов
-        if: failure()  # Условие выполнения: если предыдущие шаги провалились
-        run: echo "Тесты провалились. Проверьте логи."  # Вывод ошибки
+      - name: Проверка успеха
+        if: failure()
+        run: echo "Тесты провалились. Проверьте логи."
