@@ -1,5 +1,5 @@
 import sys
-sys.path.insert(0, '../src')  
+
 
 import unittest
 from PyQt5.QtWidgets import QApplication
@@ -7,7 +7,7 @@ from src.view import TaskView
 from src.controller import TaskController
 from src.model import TaskModel
 
-app = QApplication([])  
+app = QApplication(sys.argv) 
 
 class TestTaskView(unittest.TestCase):
     def setUp(self):
