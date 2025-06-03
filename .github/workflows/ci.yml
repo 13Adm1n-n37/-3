@@ -1,5 +1,4 @@
-
-name: "CI/CD for Task Manager"  # Название workflow
+name: "CI/CD for Task Manager"  # Название workflow 
 
 on:  # Триггеры для запуска workflow
   push:  # При push в ветку master
