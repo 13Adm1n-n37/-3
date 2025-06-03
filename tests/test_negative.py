@@ -1,5 +1,5 @@
 import sys
-sys.path.insert(0, '../src')  
+
 from PyQt5.QtCore import QDate
 import unittest
 from PyQt5.QtWidgets import QApplication
@@ -8,7 +8,7 @@ from src.controller import TaskController
 from src.model import TaskModel
 import os
 
-app = QApplication([])  
+app = QApplication(sys.argv) 
 
 class TestNegativeScenarios(unittest.TestCase):
     def setUp(self):
