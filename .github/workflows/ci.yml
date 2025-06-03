@@ -41,4 +41,4 @@ jobs:  # Определение заданий
       - name: Check test success  # Проверка на провал тестов
         if: failure()  # Условие выполнения: если предыдущие шаги провалились
         run: echo "Tests failed. Check logs for details."  # Вывод ошибки
-Update_05 ci.yml · 13Adm1n-n37/-3@86beb01
+
