@@ -23,14 +23,14 @@ jobs:  # Определение заданий
       - name: Установка системных зависимостей для PyQt5
         run: |
           sudo apt-get update && sudo apt-get install -y \
-            xvfb libgl1 libegl1 libxcb1 libx11-dev \
-            libxrender1 libxtst6 libxi6 libnss3 libasound2 \
-            python3-opengl  # Для работы с OpenGL
+            xvfb libgl1 libegl1 libxcb1 libx11-dev libxrender1 libxtst6 libxi6 \
+            libnss3 libasound2 libsm6 python3-opengl  # Добавлен libsm6 и libxrender1
+          sudo apt-get install -y python3-xvfb  # Дополнительный пакет для эмуляции
 
-      - name: Install dependencies  # Установка зависимостей
-        run: |  # Выполняет команды в терминале
-          pip install -r requirements.txt  # Установка основных зависимостей
-          pip install coverage PyQt5==5.15.17  # Добавочные зависимости для тестов 
+      - name: Установка пакетов
+        run: |
+          pip install -r requirements.txt
+          pip install coverage PyQt5==5.15.17  # Указана конкретная совместимая версия
 
       - name: Run tests with coverage  # Запуск тестов
         run: |  # Команды для выполнения тестов
@@ -40,6 +40,10 @@ jobs:  # Определение заданий
           coverage run -m unittest discover -s tests  # Запуск через unittest
           coverage html
           pkill Xvfb  # Остановка Xvfb после тестов
+
+      - name: Проверка успешности тестов
+        run: |
+          if [ ! -f htmlcov/index.html ]; then exit 1; fi  # Проверка генерации отчета
 
       - name: Upload coverage report  # Сохранение отчета как артефакта
         uses: actions/upload-artifact@v4  # Action для загрузки результатов 
