@@ -1,4 +1,4 @@
-name: "CI/CD for Task Manager"  # Название workflow [[1]][[2]]
+name: "CI/CD for Task Manager"  # Название workflow 
 
 on:  # Триггеры для запуска workflow
   push:  # При push в ветку master
@@ -20,15 +20,24 @@ jobs:  # Определение заданий
         with:
           python-version: "3.13.3"  # Версия Python согласно требованиям 
 
+      - name: Install Xvfb for GUI emulation
+        run: |
+          sudo apt-get update && sudo apt-get install -y xvfb  # Установка эмулятора X11
+          sudo apt-get install -y libgl1-mesa-glx libegl1-mesa  # Дополнительные зависимости для PyQt
+
+
       - name: Install dependencies  # Установка зависимостей
         run: |  # Выполняет команды в терминале
           pip install -r requirements.txt  # Установка основных зависимостей
-          pip install pytest coverage PyQt5  # Добавочные зависимости для тестов 
+          pip install pytest coverage PyQt5==5.15.17  # Добавочные зависимости для тестов 
 
       - name: Run tests with coverage  # Запуск тестов
         run: |  # Команды для выполнения тестов
-          coverage run -m pytest tests  # Запуск тестов с покрытием
+          export DISPLAY=:99  # Настройка эмулятора
+          Xvfb :99 -screen 0 1024x768x24 &  # Запуск Xvfb
+          coverage run -m unittest discover -s tests  # Запуск тестов с покрытием
           coverage html  # Генерация HTML-отчета о покрытии 
+          pkill Xvfb  # Остановка Xvfb после тестов
 
       - name: Upload coverage report  # Сохранение отчета как артефакта
         uses: actions/upload-artifact@v4  # Action для загрузки результатов 
