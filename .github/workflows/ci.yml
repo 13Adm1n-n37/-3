@@ -18,21 +18,13 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: "3.11"  # Версия проверена с PyQt5
 
       - name: Установка системных зависимостей
         run: |
           sudo apt-get update && sudo apt-get install -y \
             xvfb libgl1-mesa-glx libegl1-mesa libxrender1 libxtst6 libxi6 \
-            libnss3 libasound2 libsm6 python3-opengl \
-            libxcb-xinerama0 libxcb-randr0 libxcb-shape0 libxcb-xfixes0 \
-            libxkbcommon0 libglvnd0 libgles2-mesa
-
-      - name: Запуск эмуляции GUI
-        run: |
-          export DISPLAY=:99
-          Xvfb :99 -screen 0 1280x1024x24 -ac +extension GLX +render -noreset &  
-          sleep 10
+            libnss3 libasound2 libsm6 python3-opengl
 
       - name: Установка пакетов
         run: |
@@ -41,14 +33,14 @@ jobs:
 
       - name: Запуск тестов
         run: |
+          export DISPLAY=:99
+          Xvfb :99 -screen 0 1280x1024x24 -ac +extension GLX +render -noreset &  
+          sleep 10
           coverage run -m unittest discover -s tests
           coverage html
           pkill Xvfb
 
-      - name: Проверка отчета
-        run: cat htmlcov/index.html
-
-      - name: Загрузка артефакта
+      - name: Загрузка отчета
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report
