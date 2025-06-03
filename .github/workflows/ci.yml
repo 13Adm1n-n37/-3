@@ -18,20 +18,30 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"  # Версия проверена с PyQt5
+          python-version: "3.11"  # Используйте проверенную версию Python
 
-      - name: Установка системных зависимостей
+      - name: Включение репозиториев и установка зависимостей
         run: |
-          sudo apt-get update && sudo apt-get install -y \
-            xvfb libgl1-mesa-glx libegl1-mesa libxrender1 libxtst6 libxi6 \
-            libnss3 libasound2 libsm6 python3-opengl
+          sudo apt-get update -y
+          sudo apt-get install -y software-properties-common
+          sudo add-apt-repository universe  # Добавьте доступ к Universe-репозиторию
+          sudo apt-get update -y
 
-      - name: Установка пакетов
+          sudo apt-get install -y \
+            xvfb libgl1 libegl1 libxrender1 libxtst6 libxi6 \
+            libnss3 libasound2 libsm6 python3-opengl \
+            libxcb-xinerama0 libxcb-randr0 libxcb-shape0 libxcb-xfixes0 \
+            libxkbcommon0 libglvnd0 libgles2-mesa
+
+      - name: Установка пакетов из requirements.txt
         run: |
           pip install -r requirements.txt
+
+      - name: Установка coverage и PyQt5
+        run: |
           pip install coverage==7.8.2 PyQt5==5.15.17
 
-      - name: Запуск тестов
+      - name: Запуск тестов с эмуляцией GUI
         run: |
           export DISPLAY=:99
           Xvfb :99 -screen 0 1280x1024x24 -ac +extension GLX +render -noreset &  
@@ -40,8 +50,16 @@ jobs:
           coverage html
           pkill Xvfb
 
-      - name: Загрузка отчета
+      - name: Проверка отчета
+        run: |
+          if [ ! -f htmlcov/index.html ]; then exit 1; fi
+
+      - name: Загрузка артефакта
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report
           path: htmlcov/
+
+      - name: Проверка успеха
+        if: failure()
+        run: echo "Тесты провалились. Проверьте логи."
