@@ -26,7 +26,8 @@ jobs:
           sudo apt-get install -y \
             xvfb libgl1 libegl1 libxrender1 libxtst6 libxi6 \
             libnss3 libasound2 libsm6 python3-opengl \
-            libxcb1 libx11-xcb1 libglapi-mesa libegl-mesa0
+            libxcb1 libx11-xcb1 libglapi-mesa libegl-mesa0 \
+            libfontconfig1 libxkbcommon0
 
       - name: Установка пакетов из requirements.txt
         run: |
@@ -38,10 +39,10 @@ jobs:
 
       - name: Запуск тестов с эмуляцией GUI
         run: |
-          export DISPLAY=:99  # Настройка Xvfb
+          export DISPLAY=:99
           Xvfb :99 -screen 0 1280x1024x24 -ac +extension GLX +render -noreset &  
-          sleep 5  # Даем время на стабилизацию Xvfb
-          coverage run -m unittest discover -s tests  # Запуск через unittest
+          sleep 10
+          coverage run -m unittest discover -s tests
           coverage html
           pkill Xvfb
 
@@ -49,7 +50,7 @@ jobs:
         run: |
           if [ ! -f htmlcov/index.html ]; then exit 1; fi
 
-      - name: Загрузка отчета
+      - name: Загрузка артефакта
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report
