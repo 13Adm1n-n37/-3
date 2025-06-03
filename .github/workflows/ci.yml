@@ -18,44 +18,38 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.13.3"
+          python-version: "3.11"
 
-      - name: Обновление репозиториев и установка системных зависимостей
+      - name: Установка системных зависимостей
         run: |
-          sudo apt-get update -y && sudo apt-get upgrade -y
-          sudo apt-get install -y \
-            xvfb libgl1 libegl1 libxrender1 libxtst6 libxi6 \
+          sudo apt-get update && sudo apt-get install -y \
+            xvfb libgl1-mesa-glx libegl1-mesa libxrender1 libxtst6 libxi6 \
             libnss3 libasound2 libsm6 python3-opengl \
-            libxcb1 libx11-xcb1 libglvnd0 libegl-mesa0 \
-            libgl1-mesa-dri libglapi-mesa libgles2-mesa
+            libxcb-xinerama0 libxcb-randr0 libxcb-shape0 libxcb-xfixes0 \
+            libxkbcommon0 libglvnd0 libgles2-mesa
 
-      - name: Установка пакетов из requirements.txt
-        run: |
-          pip install -r requirements.txt
-
-      - name: Установка coverage и PyQt5
-        run: |
-          pip install coverage==7.8.2 PyQt5==5.15.17
-
-      - name: Запуск тестов с эмуляцией GUI
+      - name: Запуск эмуляции GUI
         run: |
           export DISPLAY=:99
           Xvfb :99 -screen 0 1280x1024x24 -ac +extension GLX +render -noreset &  
           sleep 10
+
+      - name: Установка пакетов
+        run: |
+          pip install -r requirements.txt
+          pip install coverage==7.8.2 PyQt5==5.15.17
+
+      - name: Запуск тестов
+        run: |
           coverage run -m unittest discover -s tests
           coverage html
           pkill Xvfb
 
-      - name: Проверка генерации отчета
-        run: |
-          if [ ! -f htmlcov/index.html ]; then exit 1; fi
+      - name: Проверка отчета
+        run: cat htmlcov/index.html
 
       - name: Загрузка артефакта
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report
           path: htmlcov/
-
-      - name: Проверка успеха
-        if: failure()
-        run: echo "Тесты провалились. Проверьте логи."
